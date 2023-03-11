@@ -15,6 +15,7 @@ export default Vue.extend({
     progress: {
       type: Number,
       required: true,
+      default: 20,
     },
     strokeWidth: {
       type: Number,

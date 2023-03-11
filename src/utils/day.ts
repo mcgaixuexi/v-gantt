@@ -15,9 +15,12 @@ export const format = 'YYYY-MM-DD'
  * 增一天，直接返回 string
  */
 function add(d?: dayjs.ConfigType, v = 1, u: dayjs.UnitType = 'day') {
-  return dayjs(d)
-    .add(v, u)
-    .$format()
+  return (
+    dayjs(d)
+      // @ts-ignore
+      .add(v, u)
+      .$format()
+  )
 }
 /**
  * 返回持续时间

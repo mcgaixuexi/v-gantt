@@ -17,13 +17,40 @@
         @node-click="onNodeClick"
         v-bind="treeAttrs"
       >
-        <template v-slot="{ data: d }">
+        <template v-slot="{ data: d, node: n }">
           <div class="tree-node el-tree-node__label">
             <div
               v-if="isMilestone(d)"
               :class="['milestone-mark', { done: d.done }]"
             ></div>
-            <span class="name ellipsis" :title="d.name">{{ d.name }}</span>
+            <el-input
+              v-if="d.isEdit == 1"
+              :ref="d.id"
+              size="mini"
+              @blur="() => submitEdit(n, d)"
+              v-model="newApiGroupName"
+              style="height:20px line-height:20px"
+            >
+              <i
+                slot="suffix"
+                class="el-input__icon el-icon-check"
+                @click="submitEdit(n, d)"
+              ></i>
+            </el-input>
+            <span v-else class="name ellipsis" :title="d.name">{{
+              d.name
+            }}</span>
+            <span>
+              <el-button type="text" size="mini" @click="() => append(d)">
+                Append
+              </el-button>
+              <el-button type="text" size="mini" @click="() => onDelete(d)">
+                Delete
+              </el-button>
+              <el-button type="text" size="mini" @click="() => onEdit(n, d)">
+                Edit
+              </el-button>
+            </span>
             <!-- FIXME: 暂时隐藏进度和操作 -->
             <!-- <span class="progress">{{ d.progress.toFixed(0) }}%</span>
             <el-link
@@ -57,7 +84,7 @@ interface TreeNode extends BaseItem {
   done?: BaseMilestone['done']
   children?: TreeNode[]
 }
-
+let id = 1000
 interface ElTreeNode {
   data: TreeNode
 }
@@ -71,16 +98,19 @@ function transform(item: GanttNode): TreeNode {
     return {
       ...base,
       progress: item.progress,
+      isEdit: item.isEdit,
       children: item.children.map(transform),
     }
   } else if (isMilestone(item)) {
     return {
       ...base,
+      isEdit: item.isEdit,
       done: item.done,
     }
   } else {
     return {
       ...base,
+      isEdit: item.isEdit,
       progress: item.progress,
     }
   }
@@ -108,6 +138,7 @@ export default Vue.extend({
   },
   data: () => ({
     dragging: false,
+    newApiGroupName: '',
   }),
   computed: {
     treeData(): TreeNode[] {
@@ -135,6 +166,41 @@ export default Vue.extend({
     },
   },
   methods: {
+    append(data: TreeNode) {
+      const newChild = { id: id++, label: 'testtest', children: [] }
+      if (!data.children) {
+        this.$set(this.treeData, 'children', [])
+      }
+      this.$emit('add', {
+        id: data.id,
+      })
+      // @ts-ignore
+      // this.treeData.children.push(newChild)
+    },
+    submitEdit(node: any, data: TreeNode) {
+      console.log('====================================')
+      console.log(this.newApiGroupName)
+      this.$emit('edit', {
+        id: data.id,
+        name: this.newApiGroupName,
+      })
+      this.$set(data, 'isEdit', 0)
+      console.log('====================================')
+    },
+    onEdit(node: any, data: TreeNode) {
+      this.$set(data, 'isEdit', 1)
+      this.newApiGroupName = data.name
+      this.$nextTick(() => {
+        // @ts-ignore
+        this.$refs[data.id] && this.$refs[node.data.id].focus()
+      })
+    },
+    // remove(node: any, data: TreeNode) {
+    //   const parent = node.parent
+    //   const children = parent.data.children || parent.data
+    //   const index = children.findIndex((d: { id: string }) => d.id === data.id)
+    //   children.splice(index, 1)
+    // },
     isMilestone,
     onNodeExpand(node: TreeNode) {
       this.expandData(node)
@@ -195,6 +261,7 @@ export default Vue.extend({
     },
     onScroll(e: { target: HTMLElement }) {
       this.$emit('update:scrollTop', e.target.scrollTop)
+      return false
     },
     onNodeClick(node: TreeNode) {
       const { ee } = this.bus
@@ -259,5 +326,8 @@ export default Vue.extend({
   /deep/ .el-tree-node__content {
     height: 30px; // FIXME: 使用 rowH
   }
+}
+.el-input__icon {
+  color: #409eff;
 }
 </style>

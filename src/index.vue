@@ -5,6 +5,8 @@
       :bus="bus"
       :scroll-top.sync="scrollTop"
       @delete="onDelete"
+      @add="onAdd"
+      @edit="onEdit"
       @move="onMove"
       :treeAttrs="treeAttrs"
     >
@@ -112,7 +114,6 @@ function getCollapsedMap(data: GanttPropData): CollapsedMap {
   loop(data)
   return map
 }
-
 export default Vue.extend({
   name: 'VGantt',
   components: { GanttTree, GanttChart },
@@ -162,6 +163,7 @@ export default Vue.extend({
       node: null as null | GanttNode,
       movedCols: 0,
     },
+    id: 1,
     resizeData: {
       node: null as null | GanttNode,
       resizedCols: 0,
@@ -230,6 +232,68 @@ export default Vue.extend({
       ee.on(ee.Event.Resize, this.onResize)
       ee.on(ee.Event.ResizeEnd, this.onResizeEnd)
     },
+    onAdd({ id, done }: { id: GanttPropNode['id']; done: Function }) {
+      const newData = _clonedeep(this.data)
+      // 找到该节点和其父节点
+      const [node, parent] = search(id, newData) as [
+        GanttPropNode,
+        GanttPropGroup?,
+      ]
+      console.log(node, 'node')
+      console.log(parent, 'parent')
+      // node.children.push()
+      // 添加子节点
+      this.addNode(node, parent, newData)
+      /**
+       * 支持通过 data.sync 同步数据
+       * @property {GanttPropData} data - 新的 data
+       */
+      this.$emit('update:data', newData)
+      // 如果没有监听事件，直接 done，否则由外部控制何时关闭弹窗
+      if (this.$listeners.add) {
+        /**
+         * 节点添加事件（开发中）
+         */
+        this.$emit('add', { id })
+      } else {
+        // done()
+      }
+    },
+    onEdit({
+      id,
+      name,
+      done,
+    }: {
+      id: GanttPropNode['id']
+      name: GanttPropNode['name']
+      done: Function
+    }) {
+      const newData = _clonedeep(this.data)
+      // 找到该节点和其父节点
+      const [node, parent] = search(id, newData) as [
+        GanttPropNode,
+        GanttPropGroup?,
+      ]
+
+      this.editNode(node, parent, newData, name)
+      /**
+       * 支持通过 data.sync 同步数据
+       * @property {GanttPropData} data - 新的 data
+       */
+      this.$emit('update:data', newData)
+      // 如果没有监听事件，直接 done，否则由外部控制何时关闭弹窗
+      if (this.$listeners.edit) {
+        /**
+         * 节点修改事件（开发中）
+         */
+        this.$emit('edit', { id })
+      } else {
+        // done()
+      }
+      console.log('====================================')
+      console.log(id, name)
+      console.log('====================================')
+    },
     onDelete({ id, done }: { id: GanttPropNode['id']; done: Function }) {
       const newData = _clonedeep(this.data)
       // 找到该节点和其父节点
@@ -252,6 +316,49 @@ export default Vue.extend({
         this.$emit('delete', { id, done })
       } else {
         done()
+      }
+    },
+    addNode(
+      node: GanttPropNode,
+      parent: GanttPropGroup | undefined,
+      root: GanttPropData,
+    ) {
+      const newChild = {
+        id: this.id++,
+        name: 'test',
+        children: [],
+        startDate: dayjs().$format(),
+        endDate: dayjs().$format(),
+        process: 0,
+      }
+      // @ts-ignore
+      if (!node.children) {
+        this.$set(node, 'children', [])
+      }
+      // @ts-ignore
+      node.children.push(newChild)
+      console.log(parent, 'parent')
+      console.log(node, 'node')
+      console.log(root, 'root')
+    },
+    editNode(
+      node: GanttPropNode,
+      parent: GanttPropGroup | undefined,
+      root: GanttPropData,
+      name: string,
+    ) {
+      if (parent) {
+        const i = parent.children.indexOf(node)
+        parent.children[i].name = name
+        // 判断其父节点是否需要转换成叶节点
+        // if (parent.children.length === 0) {
+        //   // 获得当前计算出的 GanttNode 数据（包含起始时间）
+        //   const [d] = search(parent.id, this.ganttData) as [GanttGroup]
+        //   transformGroupToItem(parent, d)
+        // }
+      } else {
+        const i = root.indexOf(node)
+        root[i].name = name
       }
     },
     deleteNode(

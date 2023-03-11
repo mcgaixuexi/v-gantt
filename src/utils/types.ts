@@ -3,6 +3,7 @@ import EventEmitter from '@/utils/event-emitter'
 export interface BaseItem {
   id: string
   name: string
+  isEdit: number
 }
 
 export interface BaseGroup extends BaseItem {
