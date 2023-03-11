@@ -7,7 +7,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/FEMessage/v-gantt/pulls)
 [![Automated Release Notes by gren](https://img.shields.io/badge/%F0%9F%A4%96-release%20notes-00B2EE.svg)](https://github-tools.github.io/github-release-notes/)
 
-![image.png](https://i.loli.net/2020/07/09/SoyCaBGfpNvJP1m.png)
+![image-20230311131722523](C:/Users/mcg/AppData/Roaming/Typora/typora-user-images/image-20230311131722523.png)
 
 [中文文档](./README-zh.md)
 
@@ -42,6 +42,7 @@ Base on vue + element-ui, create web version omniplan。
 8. click tree node to jump to gantt node
 9. click milestone's line to jump to milestone node
 10. get chinese festivals by public-api
+11. New node Modify, delete, add sub-node
 
 [⬆ Back to Top](#table-of-contents)
 
@@ -109,6 +110,7 @@ yarn dev
 - support drag to change progress
 - support click to toggle milestone
 - lost `<gantt-layout>` in `<gantt-group>` when compile with rollup
+- Add support node Add, modify, delete
 
 [⬆ Back to Top](#table-of-contents)
 
