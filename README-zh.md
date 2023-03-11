@@ -7,7 +7,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/FEMessage/v-gantt/pulls)
 [![Automated Release Notes by gren](https://img.shields.io/badge/%F0%9F%A4%96-release%20notes-00B2EE.svg)](https://github-tools.github.io/github-release-notes/)
 
-![image-20230311131752625](C:/Users/mcg/AppData/Roaming/Typora/typora-user-images/image-20230311131752625.png)
+![image.png](https://i.loli.net/2020/07/09/SoyCaBGfpNvJP1m.png)
 
 ## Table of Contents
 
